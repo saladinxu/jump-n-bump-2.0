@@ -1,0 +1,21 @@
+canvas {
+  border : 3px solid #000;
+}
+
+textarea {
+  box-sizing : border-box;
+  width : 120px;
+  height : 180px;
+  resize : none;
+  float : right;
+  margin : 30px;
+  padding: 10px;
+}
+
+#debugconsolep1 {
+  border : 3px dashed #F00;
+}
+
+#debugconsolep2 {
+  border : 3px dashed #00F;
+}
