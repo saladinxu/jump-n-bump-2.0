@@ -1,0 +1,17 @@
+{
+  "name": "jump-n-bump-2",
+  "dependencies": {
+    "angular": "~1.2.12",
+    "angular-ui-router": "0.2.8-bowratic-tedium",
+    "bootstrap": "~3.1.0",
+    "font-awesome": "~4.0.3",
+    "angular-cookies": "~1.2.12",
+    "angular-socket-io": "~0.6.0",
+    "socket.io": "~1.1.0",
+    "socket.io-client": "~1.1.0",
+    "underscore": "~1.7.0"
+  },
+  "devDependencies": {
+    "angular-mocks": "~1.2.12"
+  }
+}

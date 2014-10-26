@@ -1,0 +1,65 @@
+doctype html
+html(lang='en', data-ng-app='jump-n-bump-2')
+    head
+        meta(charset='utf-8')
+        title Jump 'n Bump 2.0
+        link(rel='stylesheet', href='/css/app.css')
+        link(href="/components/bootstrap/dist/css/bootstrap.min.css", rel="stylesheet")
+        link(href="/components/font-awesome/css/font-awesome.min.css", rel="stylesheet")
+
+        script(src='/components/underscore/underscore-min.js')
+        script(src='/components/socket.io-client/socket.io.js')
+        script(src='/components/angular/angular.min.js')
+        script(src='/components/angular-cookies/angular-cookies.min.js')
+        script(src='/components/angular-ui-router/release/angular-ui-router.min.js')
+        script(src='/components/angular-socket-io/socket.js')
+        
+        script(src='/js/routingConfig.js')
+        script(src='/js/game.js')
+        script(src='/js/app.js')
+        script(src='/js/services.js')
+        script(src='/js/controllers.js')
+        script(src='/js/filters.js')
+        script(src='/js/directives.js')
+
+    body(data-ng-cloak)
+        .navbar(data-ng-controller="NavCtrl")
+            .navbar-inner
+                .container-fluid
+                    ul.nav.nav-tabs
+                        li(data-access-level='accessLevels.anon', active-nav)
+                            a(href='/login') Log in
+                        li(data-access-level='accessLevels.anon', active-nav)
+                            a(href='/signup') Sign up
+                        li(data-access-level='accessLevels.user', active-nav)
+                            a(href='/game') Game
+                        li(data-access-level='accessLevels.user', active-nav)
+                            a(href='/') Home
+                        li(data-access-level='accessLevels.public', active-nav)
+                            a(href='/leaderboard') Leaderboard
+                        li(data-access-level='accessLevels.user')
+                            a(href="", data-ng-click="logout()") Log out
+                        div#userInfo.pull-right(data-access-level='accessLevels.user')
+                            | Logged in as&nbsp;
+                            strong {{ user.username }}&nbsp;
+                            span.label(data-ng-class='{"label-info": user.role.title == userRoles.user.title}') {{ user.role.title }}
+
+        .container(data-ui-view)
+        #alertBox.alert.alert-danger(data-ng-show="error")
+            button(type="button", class="close", data-ng-click="error = null;") &times;
+            strong Oh no \o/!&nbsp;
+            span(data-ng-bind="error")
+
+        // Partial views... Load up front to make transitions smoother
+        script(type="text/ng-template", id="404")
+            include partials/404
+        script(type="text/ng-template", id="home")
+            include partials/home
+        script(type="text/ng-template", id="game")
+            include partials/game
+        script(type="text/ng-template", id="leaderboard")
+            include partials/leaderboard
+        script(type="text/ng-template", id="login")
+            include partials/login
+        script(type="text/ng-template", id="signup")
+            include partials/signup
