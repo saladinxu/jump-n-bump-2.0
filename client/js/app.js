@@ -2,7 +2,7 @@
 
 'use strict';
 
-angular.module('jump-n-bump-2', ['ngCookies', 'ui.router', 'btford.socket-io'])
+angular.module('jump-n-bump-2', ['ngCookies', 'ui.router', 'btford.socket-io', 'ui.grid'])
     .config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '$httpProvider', 
     function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
 

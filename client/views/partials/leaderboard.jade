@@ -1,1 +1,10 @@
-h1 leader board
+.col-sm-6.panel.panel-primary.nopadding.full-height
+    .panel-heading 
+        .panel-title Player Rank
+    .panel-body.nopadding
+        div(ui-grid="{ data: userInfo }")
+.col-sm-6.panel.panel-success.nopadding.full-height
+    .panel-heading 
+        .panel-title All Game Events
+    .panel-body.nopadding
+        div(ui-grid="{ data: gameEvents }")

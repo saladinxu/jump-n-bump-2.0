@@ -102,13 +102,17 @@ angular.module('jump-n-bump-2').controller('ScoreControl',
 }]);
 
 angular.module('jump-n-bump-2').controller('LeaderboardCtrl',
-['$rootScope', '$scope', '$location', 'Auth', function($rootScope, $scope, $location, Auth) {
-    $scope.role = Auth.userRoles.user;
-    $scope.userRoles = Auth.userRoles;
-
-    $scope.getLeaderboardData = function() {
-        console.log('in progress...');
-    };
+['$rootScope', '$scope', 'Leaderboard', function($rootScope, $scope, Leaderboard) {
+    Leaderboard.getAllGameEvents(function(res){
+        $scope.gameEvents = res;
+    }, function() {
+        $rootScope.error = "Failed to load game events!";
+    });
+    Leaderboard.getAllUserInfo(function(res){
+        $scope.userInfo = res;
+    }, function() {
+        $rootScope.error = "Failed to load player info!";
+    });
 }]);
 
 angular.module('jump-n-bump-2').controller('AdminCtrl',

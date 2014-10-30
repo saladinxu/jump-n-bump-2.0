@@ -78,11 +78,11 @@ angular.module('jump-n-bump-2').factory('Game', function() {
     };
 });
 
-angular.module('angular-client-side-auth')
+angular.module('jump-n-bump-2')
 .factory('Leaderboard', function($http) {
     return {
         getAllUserInfo : function(success, error) {
-            $http.get('/alluserinto').success(success).error(error);
+            $http.get('/alluserinfo').success(success).error(error);
         },
         getAllGameEvents : function(success, error) {
             $http.get('/gameevents').success(success).error(error);

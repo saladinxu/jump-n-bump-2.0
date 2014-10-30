@@ -2,7 +2,8 @@
     canvas.col-sm-8(game-screen)
     .col-sm-4
         .panel.panel-info
-            .panel-heading What's going on...
+            .panel-heading 
+                .panel-title What's going on...
             .panel-body.nopadding
                 ul.list-group.nopadding(ng-controller="EventsCtrl")
                     li.list-group-item(ng-repeat="event in events")
@@ -24,7 +25,7 @@
     div(ng-controller="ScoreControl")
         .col-sm-3(ng-repeat="score in scores")
             .scoreboard(ng-style="{'background-color':'{{score.color}}', 'color':'white', 'opacity':0.7}")
-                .panel.text-center.nopadding(ng-style="{'color':'{{score.color}}'}"){{score.name}}
+                .panel.text-center.nopadding(ng-style="{'color':'{{score.color}}'}") {{score.name}}
                 hr
                 .bigtext {{score.kill}} kills
                 .pull-right {{score.win}} win / {{score.lose}} lose

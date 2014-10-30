@@ -7,13 +7,13 @@ var _ =             require('underscore'),
 
 var users = [{
         id:         1,
-        username:   "13133",
-        password:   "23233",
+        username:   "Jason",
+        password:   "nosaj",
         role:   userRoles.user
     }, {
         id:         2,
-        username:   "qwqww",
-        password:   "wewee",
+        username:   "Duke",
+        password:   "123123",
         role:   userRoles.user
     }
 ];

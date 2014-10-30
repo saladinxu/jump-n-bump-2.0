@@ -1,13 +1,18 @@
 'use strict';
 
 var _ = require('underscore');
+var moment = require('moment');
 
 var userRecords = {};
 var gameEvents = [];
 
 module.exports = {
     addGameEvent : function(event) {
-        gameEvents.push(event);
+        gameEvents.push({ 
+            time : moment(event.end).format('YYYY-MM-DD h:mm:ss a'),
+            killer : event.killer,
+            victim : event.victim
+        });
         initRecordIfNotExist(event.victim);
         initRecordIfNotExist(event.killer);
         
@@ -25,7 +30,12 @@ module.exports = {
     },
     getAllUserRecords : function() {
         return _.map(_.keys(userRecords), function(name) {
-            return _.extend({ name : name }, userRecords[name]);
+            var record = userRecords[name];
+            return {
+                name : name,
+                win : record.kill,
+                lose : record.death
+            };
         });
     }
 };
