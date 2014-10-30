@@ -57,13 +57,8 @@ angular.module('jump-n-bump-2', ['ngCookies', 'ui.router', 'btford.socket-io'])
             }
         })
         .state('user.game', {
-            url: '/game/',
-            templateUrl: 'game',
-            controller: 'GameCtrl'
-        })
-        .state('user.home', {
             url: '/',
-            templateUrl: 'home'
+            templateUrl: 'game',
         });
 
     $urlRouterProvider.otherwise('/404');

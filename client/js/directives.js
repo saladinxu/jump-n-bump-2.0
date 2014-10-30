@@ -141,23 +141,13 @@ angular.module('jump-n-bump-2').directive('gameScreen',
             var animate = function() {
                 var scale;
 
-                // Set relative size
-                var windowHeight = window.innerHeight,
-                    windowWidth = window.innerWidth;
+                ctx.canvas.width = ctx.canvas.clientWidth;
+                ctx.canvas.height = ctx.canvas.width*Game.aspectRatio;
+                scale = ctx.canvas.width/Game.width;
 
-                if (windowHeight > windowWidth*Game.aspectRatio) {
-                    ctx.canvas.width = windowWidth*0.7;
-                    ctx.canvas.height = ctx.canvas.width*Game.aspectRatio;
-                    scale = ctx.canvas.width/Game.width;
-                } else {
-                    ctx.canvas.height = windowHeight*0.7;
-                    ctx.canvas.width = ctx.canvas.height/Game.aspectRatio;
-                    scale = ctx.canvas.height/Game.height;
-                }
-
-                ctx.clearRect(0, 0, Game.width * scale, Game.height * scale);
                 // Draw background
-
+                ctx.clearRect(0, 0, Game.width * scale, Game.height * scale);
+                
                 // Draw platforms
                 _.each(Game.platforms, function(platform) {
                     ctx.fillStyle = 'black';
@@ -178,6 +168,55 @@ angular.module('jump-n-bump-2').directive('gameScreen',
                         player.width * scale, 
                         player.height * scale
                     ); 
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect( // ear
+                        (player.x + player.width / 3) * scale,
+                        player.y * scale,
+                        player.width / 3 * scale,
+                        player.height / 8 * scale
+                    );
+                    ctx.fillRect( // left eye
+                        (player.x + player.width / 4) * scale,
+                        (player.y + player.height / 4) * scale,
+                        player.width / 6 * scale,
+                        player.height / 10 * scale
+                    );
+                    ctx.fillRect( // right eye
+                        (player.x + player.width * (1 - 1/4 - 1/6)) * scale,
+                        (player.y + player.height / 4) * scale,
+                        player.width / 6 * scale,
+                        player.height / 10 * scale
+                    );
+                    ctx.fillRect( // left face
+                        player.x * scale,
+                        (player.y + player.height / 2.2) * scale,
+                        player.width / 3 * scale,
+                        player.height / 10 * scale
+                    );
+                    ctx.fillRect( // right face
+                        (player.x + player.width * 2 / 3) * scale,
+                        (player.y + player.height / 2.2) * scale,
+                        player.width / 3 * scale,
+                        player.height / 10 * scale
+                    );
+                    ctx.fillRect( // left arm
+                        player.x * scale,
+                        (player.y + player.height / 1.5) * scale,
+                        player.width / 3 * scale,
+                        player.height / 8 * scale
+                    );
+                    ctx.fillRect( // right arm
+                        (player.x + player.width * 2 / 3) * scale,
+                        (player.y + player.height / 1.5) * scale,
+                        player.width / 3 * scale,
+                        player.height / 8 * scale
+                    );
+                    ctx.fillRect( // bottom
+                        (player.x + player.width / 6) * scale,
+                        (player.y + player.height * (1 - 1/8))* scale,
+                        player.width * 2 / 3 * scale,
+                        player.height / 8 * scale
+                    );
                 });
 
                 // Keep going 4ever

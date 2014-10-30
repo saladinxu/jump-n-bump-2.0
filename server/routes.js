@@ -1,10 +1,11 @@
 'use strict';
 
-var _ =            require('underscore'),
-    path =         require('path'),
-    userCtrl =     require('./controllers/userControl'),
-    userRoles =    require('../client/js/routingConfig').userRoles,
-    accessLevels = require('../client/js/routingConfig').accessLevels;
+var _ =               require('underscore'),
+    path =            require('path'),
+    userCtrl =        require('./controllers/userControl'),
+    leaderboardCtrl = require('./controllers/leaderboardControl'),
+    userRoles =       require('../client/js/routingConfig').userRoles,
+    accessLevels =    require('../client/js/routingConfig').accessLevels;
 
 var routes = [
 
@@ -33,6 +34,16 @@ var routes = [
         path: '/logout',
         httpMethod: 'POST',
         middleware: [userCtrl.logout]
+    },
+    {
+        path: '/alluserinfo',
+        httpMethod: 'GET',
+        middleware: [leaderboardCtrl.getAllUserInfo]
+    },
+    {
+        path: '/gameevents',
+        httpMethod: 'GET',
+        middleware: [leaderboardCtrl.getAllGameEvents]
     },
 
     // All other get requests should be handled by AngularJS's client-side routing system

@@ -3,19 +3,20 @@ html(lang='en', data-ng-app='jump-n-bump-2')
     head
         meta(charset='utf-8')
         title Jump 'n Bump 2.0
-        link(rel='stylesheet', href='/css/app.css')
         link(href="/components/bootstrap/dist/css/bootstrap.min.css", rel="stylesheet")
         link(href="/components/font-awesome/css/font-awesome.min.css", rel="stylesheet")
-
+        link(rel='stylesheet', href='/css/app.css')
+        
         script(src='/components/underscore/underscore-min.js')
         script(src='/components/socket.io-client/socket.io.js')
         script(src='/components/angular/angular.min.js')
         script(src='/components/angular-cookies/angular-cookies.min.js')
         script(src='/components/angular-ui-router/release/angular-ui-router.min.js')
-        script(src='/components/angular-socket-io/socket.js')
+        script(src='/components/angular-socket-io/socket.min.js')
+        script(src='/components/moment/moment.js')
         
         script(src='/js/routingConfig.js')
-        script(src='/js/game.js')
+        script(src='/js/animationFrame.js')
         script(src='/js/app.js')
         script(src='/js/services.js')
         script(src='/js/controllers.js')
@@ -32,9 +33,7 @@ html(lang='en', data-ng-app='jump-n-bump-2')
                         li(data-access-level='accessLevels.anon', active-nav)
                             a(href='/signup') Sign up
                         li(data-access-level='accessLevels.user', active-nav)
-                            a(href='/game') Game
-                        li(data-access-level='accessLevels.user', active-nav)
-                            a(href='/') Home
+                            a(href='/') Game
                         li(data-access-level='accessLevels.public', active-nav)
                             a(href='/leaderboard') Leaderboard
                         li(data-access-level='accessLevels.user')
@@ -47,7 +46,7 @@ html(lang='en', data-ng-app='jump-n-bump-2')
         .container(data-ui-view)
         #alertBox.alert.alert-danger(data-ng-show="error")
             button(type="button", class="close", data-ng-click="error = null;") &times;
-            strong Oh no \o/!&nbsp;
+            strong Oh no!&nbsp;
             span(data-ng-bind="error")
 
         // Partial views... Load up front to make transitions smoother

@@ -59,19 +59,11 @@ angular.module('jump-n-bump-2').factory('Socket', function(socketFactory) {
     return socketFactory();
 });
 
-angular.module('jump-n-bump-2').factory('Users', function($http) {
-    return {
-        getAll: function(success, error) {
-            $http.get('/users').success(success).error(error);
-        }
-    };
-});
-
 angular.module('jump-n-bump-2').factory('Game', function() {
     var width = 0, 
         height = 0, 
         players = [], 
-        platforms = [], 
+        platforms = [],
         ax = 0, 
         ay = 0,
         aspectRatio;
@@ -86,3 +78,14 @@ angular.module('jump-n-bump-2').factory('Game', function() {
     };
 });
 
+angular.module('angular-client-side-auth')
+.factory('Leaderboard', function($http) {
+    return {
+        getAllUserInfo : function(success, error) {
+            $http.get('/alluserinto').success(success).error(error);
+        },
+        getAllGameEvents : function(success, error) {
+            $http.get('/gameevents').success(success).error(error);
+        }
+    };
+});

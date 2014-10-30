@@ -6,13 +6,6 @@ body {
     font-size: 1em;
 }
 
-canvas {
-    border-bottom: 1px solid rgba(0,0,0,0.3); 
-    background-color: #FFF;
-    box-shadow: 0 9px 20px -5px rgba(0,0,0,0.8);
-    margin: 0;
-}
-
 #cover {
     position:absolute;
     height:100%;
@@ -51,4 +44,28 @@ canvas {
 }
 .fade-show-setup.fade-show-start {
     opacity:1;
+}
+
+.nopadding {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.space-above {
+    margin-top: 40px;
+}
+
+.space-right {
+    margin-right: 15px;
+}
+
+.scoreboard {
+    margin: 15px 5px;
+    padding: 10px 10px 20px 10px;
+    border-radius: 10px;
+    box-shadow: 0 9px 20px -5px rgba(0,0,0,0.8);
+}
+
+.bigtext {
+    font-size: 40px;
 }

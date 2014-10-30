@@ -1,10 +1,11 @@
 'use strict';
 
-var sio =       require('socket.io'),
-    _ =         require('underscore'),
+var sio =        require('socket.io'),
+    _ =          require('underscore'),
+    Scoreboard = require('./Scoreboard.js'),
     gameWidth,
     gameHeight,
-    players =   {},
+    players =    {},
     colors,
     platforms,
     friction,
@@ -12,7 +13,8 @@ var sio =       require('socket.io'),
     accel,
     maxV,
     jumpV,
-    io;
+    io,
+    nameSocketMap;
 
 module.exports = {
     initialize : function(server) {
@@ -22,10 +24,7 @@ module.exports = {
             console.log('[' + socket.id + '] connection established');
             handleJoinGame(socket);
             handleMotionChange(socket);
-            var timer = setInterval(function() {
-                socket.emit('frame', encapsulateFrameData());
-            }, 10);
-            handleLeaveGame(socket, timer);
+            handleLeaveGame(socket);
         });
     },
 };
@@ -34,7 +33,7 @@ function gameInit() {
     gameWidth = 800;
     gameHeight = 500;
     colors = { 
-        usable : ['green', 'purple', 'red', 'blue', 'orange', 'pink'],
+        usable : ['green', 'purple', 'red', 'blue', 'orange'],
         taken : []
     };
     platforms = [{
@@ -109,35 +108,72 @@ function gameInit() {
     gravity = 0.3;
     friction = 0.85;
 
+    nameSocketMap = {};
+
     setInterval(function() { updateFrame(); }, 10);
 } 
 
 function handleJoinGame(socket) {
     socket.on('join', function(data) {
         console.log('[' + socket.id + '] joined the game');
-        var dupSocketId = _.find(_.keys(players), function(key){
-            return players[key].name === data.name;
-        });
+        var dupSocketId = nameSocketMap.hasOwnProperty(data.name) ? nameSocketMap[data.name].id : undefined;
         if (dupSocketId !== undefined) {
             console.log([socket.id] + ' found previous user socket: ' + dupSocketId);
+            nameSocketMap[data.name] = socket;
             players[socket.id] = players[dupSocketId];
-            delete players[dupSocketId];
+            if (socket.id != dupSocketId) {
+                delete players[dupSocketId];
+            }
+
+            socket.emit('score', extractScores());
+            socket.broadcast.emit('score', extractScores());
+
         } else {
+            nameSocketMap[data.name] = socket;
+
             var color = colors.usable[0];
             colors.usable = _.rest(colors.usable);
             colors.taken.push(color);
+            
+            var score = Scoreboard.getUserRecord(data.name);
+
             players[socket.id] = {
                 name : data.name,
                 color : color,
                 width : 30,
-                height : 50
+                height : 50,
+                win : score.kill,
+                lose : score.death,
+                kill : 0
             };
+            var joinerInfo = { 
+                name : data.name, 
+                color : color, 
+                time : new Date().getTime()
+            };
+
+            socket.emit('score', extractScores());
+            socket.broadcast.emit('score', extractScores());
+            socket.emit('joiner', joinerInfo);
+            socket.broadcast.emit('joiner', joinerInfo);
             respawn(players[socket.id]);
         }
         socket.emit('init', { 
             width : gameWidth, 
             height : gameHeight
         });
+    });
+}
+
+function extractScores() {
+    return _.map(_.values(players), function(player){
+        return {
+            name : player.name,
+            color : player.color,
+            win : player.win,
+            lose : player.lose,
+            kill : player.kill
+        };
     });
 }
 
@@ -148,7 +184,6 @@ function respawn(player) {
         newY = Math.random() * gameHeight;
         playerNext = _.extend(player, {x : newX, y : newY});
         badPos = false;
-
         _.each(platforms, function(platform) {
             var colCheck = collisionCheck(playerNext, platform),
                 isBad = Math.abs(colCheck.x) > 0 || Math.abs(colCheck.y) > 0;
@@ -162,6 +197,7 @@ function respawn(player) {
         vy : 0,
         ax : 0,
         ay : 0,
+        born : new Date().getTime(),
         state : {
             jumping : false,
             grounded : false
@@ -181,27 +217,43 @@ function handleMotionChange(socket) {
     });
 }
 
-function handleLeaveGame(socket, timer) {
+function handleLeaveGame(socket) {
     socket.on('leave', function() {
         if (players.hasOwnProperty(socket.id)) {
+            var name = players[socket.id].name;
             var color = players[socket.id].color;
             colors.usable.push(color);
             colors.taken = _.without(colors.taken, color);
             
             console.log('[' + socket.id + '] left the game');
+            var leaverInfo = { name : name, color : color, time : new Date().getTime() };
+            socket.emit('leaver', leaverInfo);
+            socket.broadcast.emit('leaver', leaverInfo);
+            
             delete players[socket.id];
-            clearInterval(timer);
+            delete nameSocketMap[name];
+
+            socket.emit('score', extractScores());
+            socket.broadcast.emit('score', extractScores());
         }
     });
     socket.on('disconnect', function() {
         if (players.hasOwnProperty(socket.id)) {
+            var name = players[socket.id].name;
             var color = players[socket.id].color;
             colors.usable.push(color);
             colors.taken = _.without(colors.taken, color);
             
             console.log('[' + socket.id + '] disconnected');
+            var leaverInfo = { name : name, color : color, time : new Date().getTime() };
+            socket.emit('leaver', leaverInfo);
+            socket.broadcast.emit('leaver', leaverInfo);
+            
+            delete nameSocketMap[name];
             delete players[socket.id];
-            clearInterval(timer);
+
+            socket.emit('score', extractScores());
+            socket.broadcast.emit('score', extractScores());
         }
     });
 }
@@ -272,13 +324,45 @@ function updateFrame() {
                     player.x += colCheck.x;
                 }
                 if (colCheck.y < 0) {
-                    respawn(p2);
+                    handleKillEvent(player, p2);
                 } else if (colCheck.y > 0) {
-                    respawn(player);
+                    handleKillEvent(p2, player);
                 }
             }
         });
+        
     });
+    // emit frame event
+    _.each(_.values(nameSocketMap), function(soc) {
+        soc.volatile.emit('frame', encapsulateFrameData());
+    });
+}
+
+function handleKillEvent(killer, victim) {
+    var killTime = new Date().getTime(),
+        lifeEvent = {
+            victim : victim.name,
+            start : victim.born,
+            end : killTime,
+            kill : victim.kill,
+            killer : killer.name,
+            victimColor : victim.color,
+            killerColor : killer.color
+        };
+    Scoreboard.addGameEvent(lifeEvent);
+    
+    var socket = nameSocketMap[killer.name];
+    socket.emit('kill', lifeEvent);
+    socket.broadcast.emit('kill', lifeEvent);
+
+    killer.kill++;
+    killer.win++;
+    victim.lose++;
+
+    socket.emit('score', extractScores());
+    socket.broadcast.emit('score', extractScores());
+
+    respawn(victim);
 }
 
 function collisionCheck(bumper, bumpee) {

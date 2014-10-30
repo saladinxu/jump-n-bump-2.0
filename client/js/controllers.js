@@ -1,13 +1,17 @@
+/*global _*/
+
 'use strict';
 
 angular.module('jump-n-bump-2').controller('NavCtrl', 
-['$rootScope', '$scope', '$location', 'Auth', function($rootScope, $scope, $location, Auth) {
+['$rootScope', '$scope', '$location', 'Auth', 'Socket', 
+function($rootScope, $scope, $location, Auth, Socket) {
     $scope.user = Auth.user;
     $scope.userRoles = Auth.userRoles;
     $scope.accessLevels = Auth.accessLevels;
 
     $scope.logout = function() {
         Auth.logout(function() {
+            Socket.emit('leave');
             $location.path('/login');
         }, function() {
             $rootScope.error = "Failed to logout";
@@ -24,7 +28,7 @@ angular.module('jump-n-bump-2').controller('LoginCtrl',
                 password: $scope.password,
                 rememberme: $scope.rememberme
             },
-            function() { $location.path('/game'); },
+            function() { $location.path('/'); },
             function() { $rootScope.error = "Failed to login"; }
         );
     };
@@ -47,12 +51,54 @@ angular.module('jump-n-bump-2').controller('SignupCtrl',
     };
 }]);
 
-angular.module('jump-n-bump-2').controller('GameCtrl',
-['$scope', 'Socket', 'Auth', function ($scope, Socket, Auth) {
-    $scope.Socket = Socket;
-    $scope.joinGame = function() {
-        Socket.emit('join', { username : username });
-    };
+angular.module('jump-n-bump-2').controller('EventsCtrl',
+['$scope', 'Socket', function ($scope, Socket) {
+    $scope.events = [];
+    $scope.maxEvent = 11;
+
+    Socket.on('kill', function(event) {
+        $scope.events.push({
+            type : 'kill',
+            time : event.end,
+            killer : event.killer,
+            victim : event.victim,
+            killerColor : event.killerColor,
+            victimColor : event.victimColor
+        });
+        if ($scope.events.length > $scope.maxEvent) {
+            $scope.events = _.rest($scope.events);
+        }
+    });
+    Socket.on('joiner', function(event) {
+        $scope.events.push({
+            type : 'joiner',
+            time : event.time,
+            name : event.name,
+            color : event.color
+        });
+        if ($scope.events.length > $scope.maxEvent) {
+            $scope.events = _.rest($scope.events);
+        }
+    });
+    Socket.on('leaver', function(event) {
+        $scope.events.push({
+            type : 'leaver',
+            time : event.time,
+            name : event.name,
+            color : event.color
+        });
+        if ($scope.events.length > $scope.maxEvent) {
+            $scope.events = _.rest($scope.events);
+        }
+    });
+}]);
+
+angular.module('jump-n-bump-2').controller('ScoreControl',
+['$scope', 'Socket', function($scope, Socket) {
+    $scope.scores = [];
+    Socket.on('score', function(data) {
+        $scope.scores = data;
+    });
 }]);
 
 angular.module('jump-n-bump-2').controller('LeaderboardCtrl',
