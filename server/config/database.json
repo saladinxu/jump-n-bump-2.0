@@ -1,0 +1,16 @@
+{
+    "development" : {
+        "host" : "localhost",
+        "port" : "27017",
+        "dbname" :"jnbdb",
+        "username" : "jnbdev",
+        "password" : "stomp321"
+    },
+    "production": {
+        "host" : "localhost",
+        "port" : "27017",
+        "dbname" :"jnbdb",
+        "username" : "jnbdev",
+        "password" : "stomp321"
+    }
+}

@@ -3,30 +3,59 @@
 var _ = require('underscore');
 var moment = require('moment');
 
-var userRecords = {};
-var gameEvents = [];
+var userRecords = {},
+    gameEvents = [],
+    db;
 
 module.exports = {
-    addGameEvent : function(event) {
-        gameEvents.push({ 
-            time : moment(event.end).format('YYYY-MM-DD h:mm:ss a'),
-            killer : event.killer,
-            victim : event.victim
+    setDb: function(_db) {
+        db = _db;
+    },
+    loadAllInfoFromDb: function() {
+        db.bind('userRecords');
+        db.userRecords.find().toArray(function(err, results) {
+            if (results) {
+                _.each(results, function(doc) {
+                    userRecords[doc.name] = _.omit(doc, 'name');
+                });
+            }
         });
-        initRecordIfNotExist(event.victim);
-        initRecordIfNotExist(event.killer);
+        db.bind('gameEvents');
+        db.gameEvents.find().toArray(function(err, result) {
+            if (result) {
+                gameEvents = result;
+            }
+        });
+    },
+    addGameEvent : function(event) {
+        var killer = event.killer,
+            victim = event.victim,
+            newEvent = { 
+                time : moment(event.end).format('YYYY-MM-DD h:mm:ss a'),
+                killer : killer,
+                victim : victim
+            };
+        gameEvents.push(newEvent);
+        db.gameEvents.insert(newEvent, function() {});
+
+        initRecordIfNotExist(victim);
+        initRecordIfNotExist(killer);
         
-        userRecords[event.victim].lifeRecord.push(_.omit(event, 'victim'));
-        userRecords[event.victim].death++;
-        userRecords[event.killer].kill++;
-        updateBestRecord(event.victim, event.kill, event.end - event.start);
+        userRecords[victim].death++;
+        userRecords[killer].kill++;
+        updateBestRecord(victim, event.kill, event.end - event.start);
+        
+        updateUserInDb(victim);
+        updateUserInDb(killer);
     },
     getUserRecord : function(name) {
         initRecordIfNotExist(name);
         return userRecords[name];
     },
     getAllGameEvents : function() {
-        return gameEvents;
+        return _.map(gameEvents, function(e) {
+            return _.omit(e, '_id');
+        });
     },
     getAllUserRecords : function() {
         return _.map(_.keys(userRecords), function(name) {
@@ -40,15 +69,24 @@ module.exports = {
     }
 };
 
+function updateUserInDb(name) {
+    db.userRecords.update(
+        {name:name}, 
+        _.extend(userRecords[name], {name:name}), 
+        {upsert:true}, 
+        function(){}
+    );
+}
+
 function initRecordIfNotExist(name) {
     if (!userRecords.hasOwnProperty(name)) {
-        userRecords[name] = {
+        var newRecord = {
             kill : 0,
             death : 0,
             bestKill : 0,
-            longestLife : 0,
-            lifeRecord : []
+            longestLife : 0
         };
+        userRecords[name] = newRecord;
     }
 }
 

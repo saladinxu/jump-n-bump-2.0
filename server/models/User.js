@@ -3,32 +3,28 @@
 var _ =             require('underscore'),
     LocalStrategy = require('passport-local').Strategy,
     validator =     require('validator'),
-    userRoles =     require('../../client/js/routingConfig').userRoles;
+    userRoles =     require('../../client/js/routingConfig').userRoles,
+    db;
 
-var users = [{
-        id:         1,
-        username:   "Jason",
-        password:   "nosaj",
-        role:   userRoles.user
-    }, {
-        id:         2,
-        username:   "Duke",
-        password:   "123123",
-        role:   userRoles.user
-    }
-];
+var users = [];
 
 module.exports = {
+    setDb: function(_db) {
+        db = _db;
+    },
+    loadAllFromDb: function() {
+        db.bind('users');
+        db.users.find().toArray(function(err, result) {
+            if (result) {
+                users = result;
+            }
+        });
+    },
     addUser: function(username, password, role, callback) {
         if(this.findByUsername(username) !== undefined) {
             return callback("UserAlreadyExists");
         }
-
-        // Clean up when 500 users reached
-        if(users.length > 500) {
-            users = users.slice(0, 2);
-        }
-
+        
         var user = {
             id:         (_.max(users, function(user) { return user.id; }).id || 0) + 1,
             username:   username,
@@ -36,7 +32,9 @@ module.exports = {
             role:       role
         };
         users.push(user);
-        callback(null, user);
+        db.users.insert(user, function(err, result) {
+            callback(err, user);
+        });
     },
 
     findAll: function() {

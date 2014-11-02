@@ -10,9 +10,11 @@ var express =         require('express'),
     cookieParser =    require('cookie-parser'), 
     session =         require('express-session'), 
     favicon =         require('serve-favicon'),
-    csrf =            require('csurf'), 
+    csrf =            require('csurf'),
+    dbDriver =        require('./server/dbDriver.js'),
     User =            require('./server/models/User.js'),
-    Game =            require('./server/models/Game.js');
+    Game =            require('./server/models/Game.js'),
+    Scoreboard =      require('./server/models/Scoreboard.js');
 
 var app = module.exports = express();
 
@@ -33,13 +35,15 @@ app.use(session({
 }));
 
 var env = process.env.NODE_ENV || 'development';
-if ('development' === env || 'production' === env) {
-    app.use(csrf());
-    app.use(function(req, res, next) {
-        res.cookie('XSRF-TOKEN', req.csrfToken());
-        next();
-    });
-}
+app.use(csrf());
+app.use(function(req, res, next) {
+    res.cookie('XSRF-TOKEN', req.csrfToken());
+    next();
+});
+dbDriver.initialize(env);
+
+User.setDb(dbDriver.getDb());
+User.loadAllFromDb();
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -48,12 +52,16 @@ passport.use(User.localStrategy);
 passport.serializeUser(User.serializeUser);
 passport.deserializeUser(User.deserializeUser);
 
+Scoreboard.setDb(dbDriver.getDb());
+Scoreboard.loadAllInfoFromDb();
+
 require('./server/routes.js')(app);
 
 app.set('port', process.env.PORT || 8811);
 
 var server = http.createServer(app);
 Game.initialize(server);
+
 server.listen(app.get('port'), function(){
     console.log("Express server listening on port " + app.get('port'));
 });
