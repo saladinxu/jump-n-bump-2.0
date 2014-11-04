@@ -7,10 +7,10 @@
         "password" : "stomp321"
     },
     "production": {
-        "host" : "localhost",
-        "port" : "27017",
-        "dbname" :"jnbdb",
-        "username" : "jnbdev",
+        "host" : "dogen.mongohq.com",
+        "port" : "10076",
+        "dbname" :"app31129343",
+        "username" : "jnb_sys",
         "password" : "stomp321"
     }
 }
