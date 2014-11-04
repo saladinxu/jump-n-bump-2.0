@@ -1,7 +1,6 @@
 'use strict';
 
 var _ = require('underscore');
-var moment = require('moment');
 
 var userRecords = {},
     gameEvents = [],
@@ -31,7 +30,7 @@ module.exports = {
         var killer = event.killer,
             victim = event.victim,
             newEvent = { 
-                time : moment(event.end).format('YYYY-MM-DD h:mm:ss a'),
+                time : event.end,
                 killer : killer,
                 victim : victim
             };

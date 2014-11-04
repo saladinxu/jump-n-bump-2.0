@@ -14,7 +14,8 @@ var sio =        require('socket.io'),
     maxV,
     jumpV,
     io,
-    nameSocketMap;
+    nameSocketMap,
+    robotName = '-= THE BOT =-';
 
 module.exports = {
     initialize : function(server) {
@@ -69,10 +70,15 @@ function gameInit() {
     }, {
         x : 120, // J3
         y : 400,
-        width: 200,
-        height: 20
+        width: 80,
+        height: 10
     }, {
-        x : 120, // J4
+        x : 240, // J4
+        y : 400,
+        width: 80,
+        height: 10
+    }, {
+        x : 120, // J5
         y : 370,
         width: 20,
         height: 50
@@ -95,7 +101,11 @@ function gameInit() {
         x : 550, // -1
         y : 180,
         width: 60,
-        height: 5
+        height: 5,
+        moving: true,
+        dx : 50,
+        cx : 550,
+        t : 0
     }, {
         x : 0, // -2
         y : 250,
@@ -110,8 +120,44 @@ function gameInit() {
 
     nameSocketMap = {};
 
-    setInterval(function() { updateFrame(); }, 10);
+    createRobot();
+
+    setInterval(updateFrame, 10);
 } 
+
+function createRobot() {
+    var score = Scoreboard.getUserRecord(robotName);
+    players[robotName] = {
+        name : robotName,
+        color : 'gray',
+        width : 15,
+        height : 25,
+        win : score.kill,
+        lose : score.death,
+        kill : 0
+    };
+
+    respawn(players[robotName]);
+    changeRobotMovement();
+}
+
+function changeRobotMovement() {
+    var robot = players[robotName];
+    if (robot.ax === 0) {
+        robot.ax = Math.random() > 0.5 ? accel : -accel;
+    }
+    var rx = Math.random();
+    if (rx > 0.7) {
+        robot.ax *= 1;
+    } else if (rx < 0.5) {
+        robot.ax *= -1;
+    } else {
+        robot.ax = 0;
+    }
+    
+    robot.ay = Math.random() > 0.6 ? -1 : 0;
+    setTimeout(changeRobotMovement, 200 + (Math.random() * 100));
+}
 
 function handleJoinGame(socket) {
     socket.on('join', function(data) {
@@ -140,8 +186,8 @@ function handleJoinGame(socket) {
             players[socket.id] = {
                 name : data.name,
                 color : color,
-                width : 30,
-                height : 50,
+                width : 24,
+                height : 40,
                 win : score.kill,
                 lose : score.death,
                 kill : 0
@@ -259,6 +305,14 @@ function handleLeaveGame(socket) {
 }
 
 function updateFrame() {
+    _.each(platforms, function(platform){
+        if (platform.moving) {
+            if (platform.dx) {
+                platform.t+=0.01;
+                platform.x = platform.cx + platform.dx*Math.sin(platform.t);
+            }
+        }
+    });
     _.each(_.values(players), function(player) {
         // jumping or not
         if (player.ay === -1) {
@@ -351,7 +405,12 @@ function handleKillEvent(killer, victim) {
         };
     Scoreboard.addGameEvent(lifeEvent);
     
-    var socket = nameSocketMap[killer.name];
+    var socket;
+    if (victim.name == robotName) {
+        socket = nameSocketMap[killer.name];
+    } else {
+        socket = nameSocketMap[victim.name];
+    }
     socket.emit('kill', lifeEvent);
     socket.broadcast.emit('kill', lifeEvent);
 
@@ -408,6 +467,13 @@ function encapsulateFrameData() {
                 height : player.height
             };
         }),
-        platforms : platforms
+        platforms : _.map(platforms, function(platform) {
+            return {
+                x : platform.x,
+                y : platform.y,
+                height : platform.height,
+                width : platform.width
+            };
+        })
     };
 }
