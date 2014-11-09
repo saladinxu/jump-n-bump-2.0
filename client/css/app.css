@@ -69,3 +69,8 @@ body {
 .bigtext {
     font-size: 40px;
 }
+
+.gridStyle {
+    border: 1px solid rgb(212,212,212);
+    width: 550px; 
+}

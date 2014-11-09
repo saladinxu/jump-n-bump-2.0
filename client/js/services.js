@@ -86,6 +86,9 @@ angular.module('jump-n-bump-2')
         },
         getAllGameEvents : function(success, error) {
             $http.get('/gameevents').success(success).error(error);
+        },
+        getLifeRecord : function(name, success, error) {
+            $http.get('/liferecords/' + name).success(success).error(error);
         }
     };
 });

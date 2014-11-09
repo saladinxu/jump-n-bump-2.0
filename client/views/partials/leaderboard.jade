@@ -1,10 +1,5 @@
-.col-sm-6.panel.panel-primary.nopadding
+.col-sm-12.panel.panel-primary.nopadding
     .panel-heading 
         .panel-title Player Rank
     .panel-body.nopadding
-        div(ui-grid="{ data: userInfo }")
-.col-sm-6.panel.panel-success.nopadding
-    .panel-heading 
-        .panel-title All Game Events
-    .panel-body.nopadding
-        div(ui-grid="{ data: gameEvents }")
+        div(ui-grid="playerRankGrid")

@@ -8,5 +8,8 @@ module.exports = {
     },
     getAllGameEvents : function(req, res) {
         res.status(200).send(Scoreboard.getAllGameEvents());
+    },
+    getLifeRecords : function(req, res) {
+        res.status(200).send(Scoreboard.getLifeRecords(req.params.name));
     }
 };

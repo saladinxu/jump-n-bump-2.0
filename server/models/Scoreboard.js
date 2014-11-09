@@ -42,6 +42,16 @@ module.exports = {
         
         userRecords[victim].death++;
         userRecords[killer].kill++;
+        if (!userRecords[victim].lifeRecords) {
+            userRecords[victim].lifeRecords=[];
+        }
+        userRecords[victim].lifeRecords.push({
+            start: event.start,
+            end: event.end,
+            length : event.end - event.start,
+            killedBy : killer,
+            kills : event.kill
+        });
         updateBestRecord(victim, event.kill, event.end - event.start);
         
         updateUserInDb(victim);
@@ -62,9 +72,14 @@ module.exports = {
             return {
                 name : name,
                 win : record.kill,
-                lose : record.death
+                lose : record.death,
+                longestLife : record.longestLife,
+                bestKill : record.bestKill
             };
         });
+    },
+    getLifeRecords : function(name) {
+        return userRecords[name].lifeRecords;
     }
 };
 
@@ -83,7 +98,8 @@ function initRecordIfNotExist(name) {
             kill : 0,
             death : 0,
             bestKill : 0,
-            longestLife : 0
+            longestLife : 0,
+            lifeRecords : []
         };
         userRecords[name] = newRecord;
     }
@@ -95,5 +111,5 @@ function updateBestRecord(name, kill, lifeLength) {
     }
     if (userRecords[name].longestLife < lifeLength) {
         userRecords[name].longestLife = lifeLength;
-    } 
+    }
 }

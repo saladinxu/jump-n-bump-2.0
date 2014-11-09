@@ -45,6 +45,11 @@ var routes = [
         httpMethod: 'GET',
         middleware: [leaderboardCtrl.getAllGameEvents]
     },
+    {
+        path: '/liferecords/:name',
+        httpMethod: 'GET',
+        middleware: [leaderboardCtrl.getLifeRecords]
+    },
 
     // All other get requests should be handled by AngularJS's client-side routing system
     {
